@@ -17,7 +17,7 @@ import * as Keychain from 'react-native-keychain';
 //Realm
 const Realm = require('realm');
 
-import PersonalInformation from './src/schema/PersonalInformation';
+import Personal from './src/schema/Personal';
 
 // 512 bit encryption
 var CryptoJs = require('crypto-js'); //CryptoJs.SHA256("");
@@ -104,15 +104,15 @@ export default class App extends Component {
     }
 
     Realm.open({
-      schema: [PersonalInformation], encryptionKey: this.key
+      schema: [Personal], encryptionKey: this.key
     }).then(realm => {
       realm.write(() => {
-        let allInfo = realm.objects('PersonalInformation');
+        let allInfo = realm.objects('Personal');
         //realm.delete(allInfo); // to delete all in the table
         if(allInfo.length == 0) {
-          const personInfo = realm.create('PersonalInformation', {id: 1});
+          const personInfo = realm.create('Personal', {id: 1});
         }
-        console.log(Array.from(realm.objects('PersonalInformation')));
+        console.log(Array.from(realm.objects('Personal')));
       });
       this.setState({realm});
     });
