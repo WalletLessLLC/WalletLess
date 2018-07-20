@@ -86,6 +86,7 @@ export default class Menu extends Component {
                         <TouchableHighlight key={info.key} onPress={() => this.props.navigation.navigate('DataInputScreen', {
                             data: info["data"],
                             schema: info["schema"],
+                            compartmentName: info.compartmentName,
                             encryptKey: this.key
                             })} 
                             underlayColor="transparent">

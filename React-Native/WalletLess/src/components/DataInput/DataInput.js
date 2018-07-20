@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import {
     View,
     StatusBar,
+    ScrollView,
     TextInput,
     Text,
     Animated,
     StyleSheet
 } from 'react-native';
+import DataInputHeader from './DataInputHeader';
 import FloatingLabelInput from './../FloatingLabelInput/FloatingLabelInput';
 
 //Realm
@@ -15,8 +17,10 @@ const Realm = require('realm');
 export default class DataInput extends Component {
 
     //Pass data files and realm to open
+    navigation = '';
     data = '';
     schema = '';
+    compartmentName = '';
     encryptKey = '';
 
     constructor(props) {
@@ -25,13 +29,11 @@ export default class DataInput extends Component {
         this.state = { realm: null };
 
         const { navigation } = this.props;
-        const data = navigation.getParam('data', {});
-        const schema = navigation.getParam('schema', null);
-        const encryptKey = navigation.getParam('encryptKey', '');
-
-        this.data = data;
-        this.schema = schema;
-        this.encryptKey = encryptKey;
+        this.navigation = navigation;
+        this.data = navigation.getParam('data', {});
+        this.schema = navigation.getParam('schema', null);
+        this.encryptKey = navigation.getParam('encryptKey', '');
+        this.compartmentName = navigation.getParam('compartmentName', '');
     }
 
     componentWillMount() {
@@ -54,10 +56,12 @@ export default class DataInput extends Component {
 
         return (
             <View>
-                {console.log(values)}
-                {this.data.map(info => (
-                    <FloatingLabelInput key={info.key} field={info.field} label={info.label} type={info.type} value={values[info.field]} />
-                ))}
+                <DataInputHeader navigation={this.navigation} compartmentName={this.compartmentName} />
+                <ScrollView>
+                    {this.data.map(info => (
+                        <FloatingLabelInput key={info.key} field={info.field} label={info.label} type={info.type} value={values[info.field]} />
+                    ))}
+                </ScrollView>
             </View>
         );
     }
