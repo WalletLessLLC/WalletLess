@@ -17,21 +17,81 @@ import MenuHeader from './MenuHeader';
 
 //Data
 import comp from './../../data/compartments.json'
+import personal from './../../data/personal.json';
 
-export default class Menu extends Component {
+//Realm
+const Realm = require('realm');
 
-    compartments = comp.map(info => (
-        <TouchableHighlight key={info.key} onPress={() => this.props.navigation.navigate('DataInputScreen')} underlayColor="transparent">
-            <CardCompartment compartmentName={info.compartmentName} leftColor={info.leftColor} percent={info.percent} subComps={info.subComps}/>
-        </TouchableHighlight>
-    ));
+//Schema
+import Personal from './../../schema/Personal';
+
+//Service
+import RealmAuth from './../../service/RealmAuth';
+
+const username = 'gsoccer'; //TBD to user's username when account creation is implemented
+
+export default class Menu extends Component {    
+
+    state = {
+        value: '',
+        realm: null
+    };
+    
+    realmAuth = new RealmAuth();
+    wordNum = ''
+    key = '';
+    compartments = 'default';
+
+    constructor() {
+        super();
+
+        this.key = this.realmAuth.generateKey(username).key;
+        console.log(this.key);
+
+        Realm.open({
+            schema: [Personal], encryptionKey: this.key
+        }).then(realm => {
+            realm.write(() => {
+            let allInfo = realm.objects('Personal');
+            //realm.delete(allInfo); // to delete all in the table
+            if(allInfo.length == 0) {
+                const personInfo = realm.create('Personal', {id: 1});
+            }
+            console.log(Array.from(realm.objects('Personal')));
+            });
+            this.setState({realm});
+        });
+
+        comp.forEach(element => {
+            switch(element.compartmentName) {
+                case "Personal and Employment":
+                    element["data"] = personal;
+                    element["schema"] = Personal;
+                    break;
+                default:
+                    break;
+            }
+        });
+    }
 
     render() {
+
+        console.log(this.key);
+
         return (
             <View style={styles.container}>
                 <MenuHeader style={styles.header} name={'Gregory'}/>
                 <ScrollView style={styles.scroll}>
-                    {this.compartments}
+                    {comp.map(info => (
+                        <TouchableHighlight key={info.key} onPress={() => this.props.navigation.navigate('DataInputScreen', {
+                            data: info["data"],
+                            schema: info["schema"],
+                            encryptKey: this.key
+                            })} 
+                            underlayColor="transparent">
+                            <CardCompartment compartmentName={info.compartmentName} leftColor={info.leftColor} percent={info.percent} subComps={info.subComps}/>
+                        </TouchableHighlight>
+                    ))}
                 </ScrollView>
             </View>
         );
